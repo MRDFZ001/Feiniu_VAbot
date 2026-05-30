@@ -1,0 +1,26 @@
+services:
+  vabot:
+    build: .
+    image: vabot:latest
+    container_name: vabot
+    env_file:
+      - .env
+    environment:
+      CREATIVE_ROOT: ${CREATIVE_ROOT:-/creative}
+      VABOT_HOST: ${VABOT_HOST:-0.0.0.0}
+      VABOT_PORT: ${VABOT_PORT:-18088}
+      TZ: ${TZ:-Asia/Shanghai}
+      VABOT_WEIXIN_STATE_ROOT: ${VABOT_WEIXIN_STATE_ROOT:-/openclaw-weixin}
+      VABOT_OPENCLAW_CONFIG: ${VABOT_OPENCLAW_CONFIG:-/openclaw-config/openclaw.json}
+    volumes:
+      # 必填：把你自己的飞牛/服务器保存目录挂载到容器内保存目录。
+      - ${VABOT_HOST_SAVE_DIR:?请先在 .env 中填写 VABOT_HOST_SAVE_DIR}:${CREATIVE_ROOT:-/creative}
+      - ./data:/app/data
+      - ./logs:/app/logs
+      # 可选：使用 OpenClaw 微信自动推送时再取消下面两行注释，并在 .env 中填写宿主机路径。
+      # - ${OPENCLAW_WEIXIN_STATE_ROOT_HOST}:${VABOT_WEIXIN_STATE_ROOT:-/openclaw-weixin}:ro
+      # - ${OPENCLAW_CONFIG_HOST}:${VABOT_OPENCLAW_CONFIG:-/openclaw-config/openclaw.json}:ro
+    ports:
+      - "${VABOT_PORT:-18088}:${VABOT_PORT:-18088}"
+    restart: unless-stopped
+    command: ["python", "-m", "app.server"]
